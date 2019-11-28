@@ -1,0 +1,146 @@
+---
+title: "stat 350 project"
+author: "Yidan Yin"
+date: '2019-11-18'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(glmnet)
+library(readxl)
+
+
+Dataset <- read_excel("~/Downloads/Stat 350 project (2).xlsx")
+
+
+data = data.frame(Dataset)
+x1 = data$housing.expenditure
+x2 = data$employment.rating..
+y = data$personal.earnings..US
+x4 = data$quality.of.support.network..
+x5 = data$Educational.attainment..
+x6 = data$air.polution.microgram.cm.2
+x7 = data$water.quality..
+x9 = data$LS.average.score
+x8 = data$self.reported.health..
+x3 = data$Life.expectancy
+x10 = data$homicide.ratio.100000.people
+set.seed(100)
+x = cbind(x1,x2,x3,x4,x5,x6,x7,x8,x9,x10)
+y1 = cbind(y)
+
+for (i in 0:10) {
+  assign(paste("fit", i, sep=""), cv.glmnet(x, y1, type.measure="mse", 
+                                            alpha=i/10,family="gaussian"))
+}
+
+yhat0 <- predict(fit0, s=fit0$lambda.min, newx=x)
+yhat1 <- predict(fit1, s=fit1$lambda.min, newx=x)
+yhat2 <- predict(fit2, s=fit2$lambda.min, newx=x)
+yhat3 <- predict(fit3, s=fit3$lambda.min, newx=x)
+yhat4 <- predict(fit4, s=fit4$lambda.min, newx=x)
+yhat5 <- predict(fit5, s=fit5$lambda.min, newx=x)
+yhat6 <- predict(fit6, s=fit6$lambda.min, newx=x)
+yhat7 <- predict(fit7, s=fit7$lambda.min, newx=x)
+yhat8 <- predict(fit8, s=fit8$lambda.min, newx=x)
+yhat9 <- predict(fit9, s=fit9$lambda.min, newx=x)
+yhat10 <- predict(fit10,s = fit10$lambda.min, newx=x)
+
+
+
+mse0 <- sum((y1 - yhat0)^2)/33
+mse1 <- sum((y1 - yhat1)^2)/33
+mse2 <- sum((y1 - yhat2)^2)/33
+mse3 <- sum((y1 - yhat3)^2)/33
+mse4 <- sum((y1 - yhat4)^2)/33
+mse5 <- sum((y1 - yhat5)^2)/33
+mse6 <- sum((y1 - yhat6)^2)/33
+mse7 <- sum((y1 - yhat7)^2)/33
+mse8 <- sum((y1 - yhat8)^2)/33
+mse9 <- sum((y1 - yhat9)^2)/33
+mse10 <- sum((y1 - yhat10)^2)/33
+
+
+
+
+#alpha =0.6 to be best
+
+plot(fit6, main = 'mixed')
+
+print(fit6$lambda.min)
+coef(fit6)
+
+ssres = 33*mse6
+sst = sum((y1-mean(y1))^2)
+rsqr = 1- (ssres/sst)
+
+
+
+####RESIDUALS AND QQPLOT#####
+residuals = y1-yhat6
+plot(yhat6,residuals, main = "Residuals vs fitted", xlab = 'yhat values')
+qqnorm(residuals)
+qqline(residuals)
+
+
+
+
+```
+
+
+
+
+
+```{r}
+data.pca <- prcomp(Dataset, center = TRUE,scale. = TRUE)
+
+summary(data.pca)
+library("factoextra")
+eig.val <- get_eigenvalue(data.pca)
+eig.val
+
+screeplot(data.pca, type="barplot")
+screeplot(data.pca, type = "lines")
+
+str(data.pca)
+
+library(plotrix)
+biplot(data.pca)
+library(devtools)
+install_github("vqv/ggbiplot")
+library(ggbiplot)
+ggbiplot(data.pca)
+ggbiplot(data.pca, labels = rownames(Dataset))
+ggbiplot(data.pca, labels = rownames(Dataset))
+fviz_pca_biplot(data.pca, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE) # Avoid text overlapping
+             
+fviz_pca_var(data.pca, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE) # Avoid text overlapping
+             
+library(pls)
+pcr_model <- pcr(y~., data = Dataset, scale = TRUE, validation = "CV")
+summary(pcr_model)
+
+# Plot the root mean squared error
+validationplot(pcr_model)
+
+
+ 
+# Plot the cross validation MSE
+validationplot(pcr_model, val.type="MSEP")
+
+
+
+
+
+
+```
+
+
