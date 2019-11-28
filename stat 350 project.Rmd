@@ -1,6 +1,6 @@
 ---
 title: "stat 350 project"
-author: "Yidan Yin"
+author: "Nathaniel Dyrkton and Yidan Yin"
 date: '2019-11-18'
 output: html_document
 ---
